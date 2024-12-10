@@ -1,0 +1,65 @@
+### Register User
+POST http://localhost:3000/api/users/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login User
+POST http://localhost:3000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+> {%
+    if (response.body.token) {
+        client.global.set("auth_token", response.body.token);
+        client.log("Token saved: " + response.body.token);
+    } else {
+        client.log("No token in response");
+        client.log(JSON.stringify(response.body));
+    }
+%}
+
+### Search Books
+GET http://localhost:3000/api/books/search?q=harry potter
+
+### Get Book by ISBN
+GET http://localhost:3000/api/books/isbn/0747532699
+
+### Get Books by Author
+GET http://localhost:3000/api/books/author/J.K.%20Rowling
+
+### Create Review
+POST http://localhost:3000/api/reviews
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "bookId": "0747532699",
+  "rating": 5,
+  "comment": "Great book!"
+}
+
+### Get Reviews for a Book
+GET http://localhost:3000/api/reviews/book/0747532699
+
+### Update Review (Replace review_id with an actual review ID)
+PUT http://localhost:3000/api/reviews/67581df9de06a238a9222edb
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Updated review comment"
+}
+
+### Delete Review (Replace review_id with an actual review ID)
+DELETE http://localhost:3000/api/reviews/67581df9de06a238a9222edb
+Authorization: Bearer {{auth_token}}
