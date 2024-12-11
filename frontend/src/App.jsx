@@ -13,7 +13,7 @@ import BookDetail from "./components/books/BookDetails.jsx";
 function App() {
     return (
         <Router>
-            <div className="min-h-screen flex flex-col">
+            <div className="w-screen h-screen bg-gray-100 flex flex-col">
                 <Header />
                 <Navbar />
                 <main className="flex-grow container mx-auto px-4 py-8">

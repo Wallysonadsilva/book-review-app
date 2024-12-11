@@ -11,9 +11,10 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-blue-500">
+        <nav className="bg-sky-600">
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
+                    {/* Left Section */}
                     <div className="flex space-x-4">
                         <Link to="/" className="text-white hover:text-blue-200">
                             Home
@@ -22,12 +23,14 @@ const Navbar = () => {
                             Books
                         </Link>
                     </div>
-                    <div className="flex space-x-4">
+
+                    {/* Right Section */}
+                    <div className="flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
-                <span className="text-white">
-                  Welcome, {user?.username}
-                </span>
+                                <span className="text-white">
+                                    Welcome, {user?.username}
+                                </span>
                                 <Link
                                     to="/profile"
                                     className="text-white hover:text-blue-200"
@@ -36,7 +39,7 @@ const Navbar = () => {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-white hover:text-blue-200"
+                                    className="text-sky-600 text-xs px-2 py-1 rounded transition"
                                 >
                                     Logout
                                 </button>
