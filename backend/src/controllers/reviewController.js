@@ -86,6 +86,17 @@ const reviewController = {
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
+    },
+
+    // Get reviews by the authenticated user
+    getUserReviews: async (req, res) => {
+        try {
+            const userId = req.user._id;
+            const reviews = await Review.find({ userId }).sort({ createdAt: -1 });
+            res.status(200).json(reviews);
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to fetch user reviews' });
+        }
     }
 };
 
