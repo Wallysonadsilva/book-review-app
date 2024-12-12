@@ -47,7 +47,8 @@ const userController = {
                     _id: user._id,
                     username: user.username,
                     email: user.email,
-                    token: generateToken(user._id)
+                    token: generateToken(user._id),
+                    createdAt: user.createdAt
                 });
                 console.log(user.username);
             } else {

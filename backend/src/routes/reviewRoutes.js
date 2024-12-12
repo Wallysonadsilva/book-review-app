@@ -44,5 +44,6 @@ router.post('/', authenticateJWT, validateReview.create, validate, reviewControl
 router.get('/book/:bookId', validateReview.pagination, validate, reviewController.getBookReviews);
 router.put('/:reviewId', authenticateJWT, validateReview.update, validate, reviewController.updateReview);
 router.delete('/:reviewId', authenticateJWT, reviewController.deleteReview);
+router.get('/user', authenticateJWT, reviewController.getUserReviews);
 
 module.exports = router;
