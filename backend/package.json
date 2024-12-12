@@ -7,7 +7,8 @@
     "dev": "nodemon src/server.js",
     "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
     "test:watch": "NODE_ENV=test jest --watchAll",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -33,14 +34,23 @@
     "supertest": "^7.0.0"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
     "nodemon": "^3.1.7"
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["./tests/setup.js"],
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ],
     "testTimeout": 10000,
     "verbose": true,
     "forceExit": true,
     "clearMocks": true
+  },
+  "lint-staged": {
+    "**/*.{js,jsx}": [
+      "npm test -- --findRelatedTests"
+    ]
   }
 }
