@@ -4,11 +4,15 @@ import { logout } from '../../features/auth/authSlice';
 
 const Navbar = () => {
     const { isAuthenticated, user } = useSelector((state) => state.auth);
-    console.log('User object:', user);
     const dispatch = useDispatch();
 
     const handleLogout = () => {
         dispatch(logout());
+    };
+
+    const formatUsername = (username) => {
+      if(!username) return '';
+      return username.charAt(0).toUpperCase() + username.slice(1);
     };
 
     return (
@@ -29,9 +33,12 @@ const Navbar = () => {
                     <div className="flex items-center space-x-4">
                         {isAuthenticated ? (
                             <>
-                                <span className="text-white">
-                                    Welcome, {user?.username}
-                                </span>
+                                <div className="flex items-center">
+                                    <span className="text-white">Welcome,</span>
+                                    <span className="text-white font-bold ml-1">
+                                        {formatUsername(user?.username)}
+                                    </span>
+                                </div>
                                 <Link
                                     to="/profile"
                                     className="text-white hover:text-blue-200"

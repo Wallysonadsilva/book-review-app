@@ -55,7 +55,6 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const port = process.env.PORT || 3000;
 
-// Only start the server if we're not running tests
 if (process.env.NODE_ENV !== 'test') {
     app.listen(port, () => {
         console.log(`Server started on port ${port}`);

@@ -15,7 +15,7 @@ class BookService {
         return url;
     }
 
-    static async searchBooks(query, page = 1, limit = 10) {
+    static async searchBooks(query, page = 1, limit = 18) {
         try {
             const offset = (page - 1) * limit;
             const response = await axios.get(
@@ -71,7 +71,7 @@ class BookService {
         }
     }
 
-    static async getBookByAuthor(author, page = 1, limit = 10) {
+    static async getBookByAuthor(author, page = 1, limit = 18) {
         try {
             const offset = (page - 1) * limit;
             const response = await axios.get(

@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
-// Load test environment variables
 dotenv.config({ path: '.env.test' });
 
 process.env.NODE_ENV = 'test';
@@ -9,7 +8,7 @@ process.env.NODE_ENV = 'test';
 // Function to connect to test database
 beforeAll(async () => {
     try {
-        await mongoose.disconnect(); // Disconnect from any existing connection
+        await mongoose.disconnect();
         await mongoose.connect(process.env.MONGODB_URI_TEST);
         console.log('Connected to test database');
     } catch (error) {

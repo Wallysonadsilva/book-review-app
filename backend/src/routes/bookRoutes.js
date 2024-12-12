@@ -49,7 +49,7 @@ const validateBook = {
 router.get('/search', validateBook.search, validate, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 18;
         const books = await bookService.searchBooks(req.query.q, page, limit);
         res.json(books);
     } catch(err) {
@@ -69,7 +69,7 @@ router.get('/isbn/:isbn', validateBook.isbn, validate, async (req, res) => {
 router.get('/author/:author', validateBook.author, validate, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 18;
         const books = await bookService.getBookByAuthor(req.params.author, page, limit);
         res.json(books);
     } catch(err) {

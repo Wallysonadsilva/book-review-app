@@ -3,9 +3,9 @@ POST http://localhost:3000/api/users/register
 Content-Type: application/json
 
 {
-  "username": "testuser",
-  "email": "test@example.com",
-  "password": "password123"
+  "username": "Tester 1",
+  "email": "test1@example.com",
+  "password": "Test1234"
 }
 
 ### Login User
@@ -13,7 +13,7 @@ POST http://localhost:3000/api/users/login
 Content-Type: application/json
 
 {
-  "email": "test1@gmail.com",
+  "email": "test1@example.com",
   "password": "Test1234"
 }
 
@@ -63,7 +63,7 @@ Content-Type: application/json
 GET http://localhost:3000/api/reviews/book/0747532699
 
 ### Update Review (Replace review_id with an actual review ID)
-PUT http://localhost:3000/api/reviews/67581df9de06a238a9222edb
+PUT http://localhost:3000/api/reviews/675add491bba4e69ff89c5d5
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -73,5 +73,5 @@ Content-Type: application/json
 }
 
 ### Delete Review (Replace review_id with an actual review ID)
-DELETE http://localhost:3000/api/reviews/67581df9de06a238a9222edb
+DELETE http://localhost:3000/api/reviews/675add491bba4e69ff89c5d5
 Authorization: Bearer {{auth_token}}

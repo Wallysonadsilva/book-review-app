@@ -25,7 +25,14 @@ describe('Book API', () => {
             expect(res.body).toHaveProperty('books');
             expect(res.body).toHaveProperty('page');
             expect(res.body).toHaveProperty('totalPages');
+
+            res.body.books.forEach((book) => {
+                expect(book.coverURL).toBeDefined();
+                expect(book.coverURL).toMatch(/covers\.openlibrary\.org/);
+            });
         });
+
+
 
         it('should return error for empty search query', async () => {
             const res = await request(app)
@@ -43,6 +50,8 @@ describe('Book API', () => {
 
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('title');
+            expect(res.body).toBeDefined();
+            expect(res.body.coverURL).toMatch(/covers\.openlibrary\.org/);
         });
 
         it('should return error for invalid ISBN', async () => {
