@@ -29,11 +29,13 @@ This project was built to provide a backend system for an online book retailer. 
 ## 🛠️ Technology Stack
 
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB
+- **Database**: MongoDB, Mongoose
 - **HTTP Client**: Axios
 - **API Integration**: OpenLibrary API for fetching book details
 - **Authentication**: JWT for secure authentication and session management
-- **Frontend**: React.js 
+- **Password Hashing**: bcryptjs for secure password encryption
+- **Testing**: Jest, SuperTest
+- **Frontend**: React.js (Vite), Redux Toolkit, Tailwind CSS 
 
 ---
 
@@ -51,3 +53,68 @@ fetch(url, options)
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
+```
+---
+
+## 🚀 Clone, Install, and Run the Project
+### 1. Clone the Repository
+```bash
+  git clone https://github.com/your-username/online-bookstore-backend.git
+  cd online-bookstore-backend
+```
+### 2. Install Dependencies
+```bash
+  npm install
+```
+### 3. Set Up Environment Variables
+#### .env
+```bash
+# MongoDB URI for development
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.noiol.mongodb.net/bookstore?retryWrites=true&w=majority
+
+# JWT Secret key for signing tokens
+JWT_SECRET_KEY=your-secret-key
+
+# Port the server will run on
+PORT=3000
+
+# Set the Expire time for the token as you like
+JWT_EXPIRES = '30d'
+
+# Contact email to add to the OpenLibrary Header
+CONTACT_EMAIL = email@example.com
+```
+#### .env.test
+```bash
+# MongoDB URI for development
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.noiol.mongodb.net/bookstore_test
+
+# JWT Secret key for signing tokens
+JWT_SECRET_KEY=your-secret-key
+
+# Set the Expire time for the token as you like
+JWT_EXPIRES = '30d'
+
+# Contact email to add to the OpenLibrary Header
+CONTACT_EMAIL = email@example.com
+```
+### 4. Running the Application
+
+```bash
+  # backend (by default, the app will run on http://localhost:3000 )
+  cd backend
+  npm run dev
+  
+  # frontend (by default, the app will run on http://localhost:5173 )
+  cd frontend
+  npm run dev
+```
+
+### 5. Running Test using Jest and supertest for the API endpoint
+```bash
+  npm test
+  
+  # Optional endpoints can also be test using the api-test.http inside of the backend
+  # or using Postman
+
+  
