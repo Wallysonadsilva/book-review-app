@@ -11,6 +11,7 @@ beforeAll(async () => {
         await mongoose.disconnect();
         await mongoose.connect(process.env.MONGODB_URI_TEST);
         console.log('Connected to test database');
+        console.log('test');
     } catch (error) {
         console.error('Error connecting to test database:', error);
         process.exit(1);
@@ -31,3 +32,4 @@ afterEach(async () => {
         }
     }
 });
+
