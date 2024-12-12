@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getBookByISBN } from '../../services/bookService';
-import ReviewList from '../reviews/ReviewList';
-import ReviewForm from '../reviews/ReviewForm';
 import { useSelector } from 'react-redux';
+import { getBookByISBN } from '../../services/bookService';
+import api from '../../services/api';
+import ReviewCard from './ReviewCard';
+import ReviewForm from "../reviews/ReviewForm";
 
 const BookDetail = () => {
     const { isbn } = useParams();
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { isAuthenticated } = useSelector(state => state.auth);
+    const [reviews, setReviews] = useState([]);
+    const { isAuthenticated, user } = useSelector(state => state.auth);
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -27,12 +29,45 @@ const BookDetail = () => {
         fetchBook();
     }, [isbn]);
 
+    const fetchReviews = async () => {
+        try {
+            const response = await api.get(`/reviews/book/${isbn}`);
+            setReviews(response.data.reviews);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    useEffect(() => {
+        if (isbn) {
+            fetchReviews();
+        }
+    }, [isbn]);
+
+    const handleUpdateReview = async (reviewId, updatedData) => {
+        try {
+            await api.put(`/reviews/${reviewId}`, updatedData);
+            fetchReviews();
+        } catch (err) {
+            console.error('Error updating review:', err);
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await api.delete(`/reviews/${reviewId}`);
+            fetchReviews();
+        } catch (err) {
+            console.error('Error deleting review:', err);
+        }
+    };
+
     if (loading) return <div className="text-center">Loading...</div>;
     if (error) return <div className="text-red-500 text-center">{error}</div>;
     if (!book) return <div className="text-center">Book not found</div>;
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto p-4">
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h1 className="text-3xl font-bold mb-4">{book.title}</h1>
                 <div className="grid md:grid-cols-2 gap-6">
@@ -46,7 +81,6 @@ const BookDetail = () => {
                         )}
                     </div>
                     <div>
-                        {/* Book details */}
                         <p className="text-gray-600 mb-2">
                             Author: {book.author_name?.[0] || 'Unknown'}
                         </p>
@@ -61,15 +95,27 @@ const BookDetail = () => {
                 </div>
             </div>
 
-            {/* Reviews section */}
             <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">Reviews</h2>
                 {isAuthenticated && (
                     <div className="mb-8">
-                        <ReviewForm bookId={isbn} />
+                        <ReviewForm
+                            bookId={isbn}
+                            onReviewAdded={fetchReviews}
+                        />
                     </div>
                 )}
-                <ReviewList bookId={isbn} />
+                <div className="space-y-4 bg-white rounded-lg shadow-md p-6">
+                    {reviews.map((review) => (
+                        <ReviewCard
+                            key={review._id}
+                            review={review}
+                            onDelete={handleDeleteReview}
+                            onUpdate={handleUpdateReview}
+                            currentUserId={user?._id}
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     );

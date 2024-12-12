@@ -61,8 +61,8 @@ describe('User API', () => {
                 .post('/api/users/register')
                 .send({
                     username: 'testuser',
-                    email: 'test@example.com',
-                    password: 'password123'
+                    email: 'test1@example.com',
+                    password: 'Test1234'
                 });
         });
 
@@ -70,12 +70,13 @@ describe('User API', () => {
             const res = await request(app)
                 .post('/api/users/login')
                 .send({
-                    email: 'test@example.com',
-                    password: 'password123'
+                    email: 'test1@example.com',
+                    password: 'Test1234'
                 });
 
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('token');
+            expect(res.body).toHaveProperty('createdAt');
         });
 
         it('should not login with wrong password', async () => {

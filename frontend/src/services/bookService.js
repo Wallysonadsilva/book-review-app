@@ -2,7 +2,6 @@ import api from './api';
 
 export const searchBooks = async (query) => {
     const response = await api.get(`/books/search?q=${encodeURIComponent(query)}`);
-    // Transform the data to ensure cover URLs are present
     const booksWithCovers = response.data.books.map(book => ({
         ...book,
         coverUrl: book.isbn && book.isbn[0]
@@ -27,7 +26,7 @@ export const getBookByISBN = async (isbn) => {
 
 export const getBooksByAuthor = async (author) => {
     const response = await api.get(`/books/author/${encodeURIComponent(author)}`);
-    // Transform the data to ensure cover URLs are present
+
     const booksWithCovers = response.data.books.map(book => ({
         ...book,
         coverUrl: book.isbn && book.isbn[0]

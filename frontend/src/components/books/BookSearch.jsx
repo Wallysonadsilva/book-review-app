@@ -6,7 +6,7 @@ const BookCard = ({ book }) => {
     const coverURL = book.coverURL || null;
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+        <div className="bg-white rounded-lg shadow-md h-[460px] p-4 hover:shadow-lg transition-shadow">
             <div className="flex flex-col items-center mb-4">
                 <div className="relative w-48 h-64">
                     {!imageError && book.coverURL ? (
@@ -66,7 +66,7 @@ const BookSearch = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
-    const LIMIT = 10;
+    const LIMIT = 18;
 
     const isISBN = (str) => {
         const isbnRegex = /^[0-9X-]{10,13}$/;
@@ -155,8 +155,8 @@ const BookSearch = () => {
                             searchType === 'isbn'
                                 ? 'Enter ISBN (10 or 13 digits)...'
                                 : searchType === 'author'
-                                    ? 'Enter author name (min 2 chars)...'
-                                    : 'Search for books (min 2 chars)...'
+                                    ? 'Enter author name ...'
+                                    : 'Search for books ...'
                         }
                         className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
                     />

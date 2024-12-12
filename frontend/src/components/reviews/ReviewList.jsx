@@ -10,7 +10,7 @@ const ReviewList = ({ bookId }) => {
     const [error, setError] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const limit = 5; // reviews per page
+    const limit = 5;
 
     const fetchReviews = async (pageNum) => {
         try {
