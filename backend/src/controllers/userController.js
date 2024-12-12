@@ -49,6 +49,7 @@ const userController = {
                     email: user.email,
                     token: generateToken(user._id)
                 });
+                console.log(user.username);
             } else {
                 res.status(401).json({ message: 'Invalid email or password' });
             }

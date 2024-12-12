@@ -37,12 +37,25 @@ const BookDetail = () => {
                 <h1 className="text-3xl font-bold mb-4">{book.title}</h1>
                 <div className="grid md:grid-cols-2 gap-6">
                     <div>
+                        {book.coverURL && (
+                            <img
+                                src={book.coverURL}
+                                alt={`Cover of ${book.title}`}
+                                className="w-full h-auto mb-4 rounded-md shadow-sm"
+                            />
+                        )}
+                    </div>
+                    <div>
                         {/* Book details */}
-                        <p className="text-gray-600 mb-2">Author: {book.authors?.[0]?.name || 'Unknown'}</p>
+                        <p className="text-gray-600 mb-2">
+                            Author: {book.author_name?.[0] || 'Unknown'}
+                        </p>
                         <p className="text-gray-600 mb-2">ISBN: {isbn}</p>
-                        <p className="text-gray-600 mb-2">Published: {book.publish_date || 'Unknown'}</p>
-                        {book.description && (
-                            <p className="text-gray-700 mt-4">{book.description}</p>
+                        <p className="text-gray-600 mb-2">
+                            Published: {book.first_publish_year || 'Unknown'}
+                        </p>
+                        {book.description?.value && (
+                            <p className="text-gray-700 mt-4">{book.description.value}</p>
                         )}
                     </div>
                 </div>
