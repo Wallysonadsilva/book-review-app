@@ -57,10 +57,12 @@ fetch(url, options)
 ---
 
 ## 🚀 Clone, Install, and Run the Project
-### 1. Clone the Repository
+### 1. Fork and then clone
 ```bash
-  git clone https://github.com/your-username/online-bookstore-backend.git
-  cd online-bookstore-backend
+  # Clone the forked repository
+  git clone https://github.com/your-username/book-review-app.git
+  cd book-review-app
+
 ```
 ### 2. Install Dependencies
 ```bash
