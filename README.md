@@ -33,7 +33,7 @@ This project was built to provide a backend system for an online book retailer. 
 - **HTTP Client**: Axios
 - **API Integration**: OpenLibrary API for fetching book details
 - **Authentication**: JWT for secure authentication and session management
-- **Frontend**: React.js (planned implementation)
+- **Frontend**: React.js 
 
 ---
 
