@@ -13,8 +13,8 @@ POST http://localhost:3000/api/users/login
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "password123"
+  "email": "test1@gmail.com",
+  "password": "Test1234"
 }
 
 > {%
@@ -32,6 +32,18 @@ GET http://localhost:3000/api/books/search?q=harry potter
 
 ### Get Book by ISBN
 GET http://localhost:3000/api/books/isbn/0747532699
+Content-Type: application/json
+
+> {%
+    client.test("Book details include cover URL", function() {
+        client.assert(response.status === 200, "Response status should be 200");
+        client.assert(response.body.coverUrl, "Response should include coverUrl");
+        client.assert(
+            response.body.coverUrl.includes("covers.openlibrary.org"),
+            "Cover URL should be from Open Library"
+        );
+    });
+%}
 
 ### Get Books by Author
 GET http://localhost:3000/api/books/author/J.K.%20Rowling
