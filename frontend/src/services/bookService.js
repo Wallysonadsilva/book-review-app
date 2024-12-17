@@ -17,9 +17,13 @@ export const searchBooks = async (query) => {
 
 export const getBookByISBN = async (isbn) => {
     const response = await api.get(`/books/isbn/${isbn}`);
-    // Add cover URL to book details
+
+    const bookData = response.data;
+    const authorName = bookData.by_statement || (bookData.author_name?.[0]);
+
     return {
-        ...response.data,
+        ...bookData,
+        author_name: authorName,
         coverUrl: isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg` : null
     };
 };

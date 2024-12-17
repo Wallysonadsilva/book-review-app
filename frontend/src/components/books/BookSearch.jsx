@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchState, clearSearchState, setPreserveState  } from '../../features/search/searchSlice';
 
 const BookCard = ({ book }) => {
     const [imageError, setImageError] = useState(false);
@@ -38,9 +40,7 @@ const BookCard = ({ book }) => {
                 </div>
             </div>
             <div className="text-center">
-                <h3 className="text-xl font-semibold mb-2 line-clamp-2">
-                    {book.title}
-                </h3>
+                <h3 className="text-xl font-semibold mb-2 line-clamp-2">{book.title}</h3>
                 <p className="text-gray-600 mb-2 line-clamp-1">
                     {book.author_name?.[0] || 'Unknown'}
                 </p>
@@ -58,55 +58,94 @@ const BookCard = ({ book }) => {
 };
 
 const BookSearch = () => {
-    const [query, setQuery] = useState('');
-    const [searchType, setSearchType] = useState('general');
-    const [books, setBooks] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams();
+    const searchState = useSelector((state) => state.search);
 
-    const LIMIT = 18;
+    const [query, setQuery] = useState(searchParams.get('q') || '');
+    const [searchType, setSearchType] = useState(searchParams.get('type') || 'general');
+    const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+
+
+    useEffect(() => {
+        if (searchState.preserveState) {
+
+            setQuery(searchState.query);
+            setSearchType(searchState.searchType);
+            setPage(searchState.page);
+
+
+            handleSearch(null, {
+                query: searchState.query,
+                searchType: searchState.searchType,
+                page: searchState.page
+            });
+
+
+            dispatch(setPreserveState(false));
+        } else {
+            dispatch(clearSearchState());
+            setSearchParams({});
+        }
+    }, []);
+
+    const updateURL = (searchData) => {
+        const params = new URLSearchParams();
+        if (searchData.query) params.set('q', searchData.query);
+        if (searchData.searchType) params.set('type', searchData.searchType);
+        if (searchData.page > 1) params.set('page', searchData.page.toString());
+        setSearchParams(params);
+    };
 
     const isISBN = (str) => {
         const isbnRegex = /^[0-9X-]{10,13}$/;
         return isbnRegex.test(str.replace(/[-\s]/g, ''));
     };
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
-        const cleanQuery = query.trim();
+    const handleSearch = async (e, searchParams = null) => {
+        if (e) e.preventDefault();
+
+        const searchData = searchParams || {
+            query,
+            searchType,
+            page
+        };
+
+        const cleanQuery = searchData.query.trim();
 
         if (!cleanQuery || cleanQuery.length < 2) {
-            setError('Search query must be at least 2 characters');
+            dispatch(setSearchState({ error: 'Search query must be at least 2 characters' }));
             return;
         }
 
-        setLoading(true);
-        setError(null);
+        updateURL(searchData);
+
+        dispatch(setSearchState({
+            ...searchData,
+            loading: true,
+            error: null
+        }));
 
         try {
             let url;
-            let response;
 
-            switch (searchType) {
+            switch (searchData.searchType) {
                 case 'isbn':
                     if (!isISBN(cleanQuery)) {
-                        setError('Invalid ISBN format');
-                        setLoading(false);
+                        dispatch(setSearchState({ error: 'Invalid ISBN format', loading: false }));
                         return;
                     }
                     url = `/api/books/isbn/${cleanQuery}`;
                     break;
                 case 'author':
-                    url = `/api/books/author/${encodeURIComponent(cleanQuery)}?page=${page}&limit=${LIMIT}`;
+                    url = `/api/books/author/${encodeURIComponent(cleanQuery)}?page=${searchData.page}&limit=${searchState.limit}`;
                     break;
                 default:
-                    url = `/api/books/search?q=${encodeURIComponent(cleanQuery)}&page=${page}&limit=${LIMIT}`;
+                    url = `/api/books/search?q=${encodeURIComponent(cleanQuery)}&page=${searchData.page}&limit=${searchState.limit}`;
             }
 
-            console.log('Fetching from URL:', url);
-            response = await fetch(url);
+            const response = await fetch(url);
 
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}`);
@@ -114,24 +153,23 @@ const BookSearch = () => {
 
             const data = await response.json();
 
-            if (searchType === 'isbn') {
-                setBooks(data ? [data] : []);
-                setTotalPages(1);
-            } else {
-                setBooks(data.books || []);
-                setTotalPages(data.totalPages || 1);
-            }
+            dispatch(setSearchState({
+                books: searchData.searchType === 'isbn' ? [data] : (data.books || []),
+                totalPages: searchData.searchType === 'isbn' ? 1 : (data.totalPages || 1),
+                loading: false
+            }));
         } catch (err) {
             console.error('Search error:', err);
-            setError('Error searching books. Please try again.');
-        } finally {
-            setLoading(false);
+            dispatch(setSearchState({
+                error: 'Error searching books. Please try again.',
+                loading: false
+            }));
         }
     };
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
-        handleSearch(new Event('submit'));
+        handleSearch(null, { query, searchType, page: newPage });
     };
 
     return (
@@ -163,46 +201,46 @@ const BookSearch = () => {
                     <button
                         type="submit"
                         className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none disabled:bg-blue-300"
-                        disabled={loading || query.trim().length < 2}
+                        disabled={searchState.loading || query.trim().length < 2}
                     >
-                        {loading ? 'Searching...' : 'Search'}
+                        {searchState.loading ? 'Searching...' : 'Search'}
                     </button>
                 </div>
             </form>
 
-            {error && (
+            {searchState.error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
+                    {searchState.error}
                 </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book, index) => (
+                {searchState.books.map((book, index) => (
                     <Link
                         to={`/books/${book.isbn?.[0] || ''}`}
                         key={book.isbn?.[0] || index}
                         className="block hover:shadow-lg transition-shadow"
                     >
-                        <BookCard book={book}/>
+                        <BookCard book={book} />
                     </Link>
                 ))}
             </div>
 
-            {totalPages > 1 && (
+            {searchState.totalPages > 1 && (
                 <div className="mt-6 flex justify-center gap-2">
                     <button
                         onClick={() => handlePageChange(page - 1)}
                         disabled={page === 1}
                         className="px-4 py-2 bg-gray-100 rounded disabled:opacity-50"
                     >
-                    Previous
+                        Previous
                     </button>
                     <span className="px-4 py-2">
-                        Page {page} of {totalPages}
+                        Page {page} of {searchState.totalPages}
                     </span>
                     <button
                         onClick={() => handlePageChange(page + 1)}
-                        disabled={page === totalPages}
+                        disabled={page === searchState.totalPages}
                         className="px-4 py-2 bg-gray-100 rounded disabled:opacity-50"
                     >
                         Next
@@ -210,7 +248,7 @@ const BookSearch = () => {
                 </div>
             )}
 
-            {books.length === 0 && !loading && (
+            {searchState.books.length === 0 && !searchState.loading && (
                 <p className="text-center text-gray-600">No books found</p>
             )}
         </div>
