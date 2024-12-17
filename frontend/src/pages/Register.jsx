@@ -1,5 +1,5 @@
 // src/pages/Register.jsx
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -10,7 +10,24 @@ const Register = () => {
         password: '',
     });
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        let redirectTimer;
+        if(success){
+            redirectTimer = setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+        }
+
+        // clean timer when component is unmount or success state changes
+        return () => {
+          if(redirectTimer){
+              clearTimeout(redirectTimer);
+          }
+        };
+    },[success,navigate]);
 
     const handleChange = (e) => {
         setFormData({
@@ -23,17 +40,27 @@ const Register = () => {
         e.preventDefault();
         try {
             const response = await api.post('/users/register', formData);
-            localStorage.setItem('token', response.data.token);
-            navigate('/');
+/*            localStorage.setItem('token', response.data.token);
+            navigate('/');*/
+            setSuccess(true);
+            setError('');
         } catch (err) {
             setError(err.response?.data?.message || 'An error occurred');
+            setSuccess(false);
         }
     };
 
     return (
         <div className="max-w-md mx-auto">
             <h2 className="text-3xl font-bold mb-6">Register</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            { success ? (
+                <div className="mb-4 bg-green-100 border-green-400 text-green-700">
+                    <span>
+                        Registration successful! You will be redirected to the login page in 3 seconds...
+                    </span>
+                </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         {error}
@@ -88,6 +115,7 @@ const Register = () => {
                     Register
                 </button>
             </form>
+                )}
         </div>
     );
 };
