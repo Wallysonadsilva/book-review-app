@@ -1,6 +1,8 @@
 # Ignore environment files
 .env
 .env.test
+*.env
+node_modules/
 
 # Ignore IDE specific files
 .idea/
