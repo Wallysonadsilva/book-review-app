@@ -11,8 +11,7 @@ class BookService {
     static getCoverURL(identifier, type = 'isbn', size = 'M') {
         if (!identifier) return null;
         const cleanIdentifier = identifier.replace(/[-\s]/g, '');
-        const url = `https://covers.openlibrary.org/b/${type}/${cleanIdentifier}-${size}.jpg`;
-        return url;
+        return `https://covers.openlibrary.org/b/${type}/${cleanIdentifier}-${size}.jpg`;
     }
 
     static async searchBooks(query, page = 1, limit = 18) {
@@ -23,9 +22,9 @@ class BookService {
                 this.header
             );
 
+            const { numFound = 0 } = response.data;
+
             const books = response.data.docs.map((book) => {
-
-
                 return {
                     ...book,
                     coverURL: book.isbn && book.isbn.length > 0
@@ -36,9 +35,9 @@ class BookService {
 
             return {
                 books,
-                total: response.data.numFound,
+                total: numFound,
                 page,
-                totalPages: Math.ceil(response.data.numFound / limit)
+                totalPages: Math.ceil(numFound / limit)
             };
         } catch(err) {
             console.error('Error in searchBooks:', err);
@@ -54,13 +53,21 @@ class BookService {
             );
 
             if (response.data.error) {
-                throw new Error(response.data.error);
+                return {
+                    error: response.data.error,
+                    status: 'error',
+                };
             }
+
+            const {
+                authors = [],
+                publish_date = 'unknown',
+            } = response.data;
 
             return {
                 title: response.data.title,
-                author_name: response.data.authors?.map(author => author.name) || [],
-                first_publish_year: response.data.publish_date,
+                author_name: authors?.map(author => author.name) || [],
+                first_publish_year: publish_date,
                 isbn: [isbn],
                 coverURL: this.getCoverURL(isbn),
                 ...response.data
@@ -79,6 +86,7 @@ class BookService {
                 this.header
             );
 
+            const { numFound = 0 } = response.data;
             const books = response.data.docs.map(book => ({
                 ...book,
                 coverURL: book.isbn && book.isbn.length > 0 ? this.getCoverURL(book.isbn[0]) : null
@@ -86,9 +94,9 @@ class BookService {
 
             return {
                 books,
-                total: response.data.numFound,
+                total: numFound,
                 page,
-                totalPages: Math.ceil(response.data.numFound / limit)
+                totalPages: Math.ceil(numFound / limit)
             };
         } catch(err) {
             console.error('Error in getBookByAuthor:', err);
