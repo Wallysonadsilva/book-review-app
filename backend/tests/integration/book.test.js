@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/server');
 const mongoose = require('mongoose');
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
 describe('Book API', () => {
     beforeAll(async () => {
@@ -47,7 +48,6 @@ describe('Book API', () => {
         it('should get book by valid ISBN', async () => {
             const res = await request(app)
                 .get('/api/books/isbn/0747532699');
-
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('title');
             expect(res.body).toBeDefined();
