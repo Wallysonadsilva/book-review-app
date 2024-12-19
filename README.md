@@ -56,7 +56,7 @@ fetch(url, options)
 ```
 ---
 
-## 🚀 Clone, Install, and Run the Project
+## 🚀 How to run the Project
 ### 1. Fork and then clone
 ```bash
   # Clone the forked repository
