@@ -20,11 +20,13 @@ logs
 npm-debug.log*
 
 # IDE files
-.idea
+.idea/
 .vscode
 *.swp
 *.swo
 
+# git hooks
+.husky/
 # Operating System
 .DS_Store
 .env.local
