@@ -2,6 +2,9 @@ const axios = require('axios');
 require('dotenv').config();
 
 class BookService {
+    static cache = new Map();
+    static CACHE_DURATION = 1000 * 60 * 15;
+
     static header = {
         headers: {
             'User-Agent': `book-review-app/1.0 (${process.env.CONTACT_EMAIL})`
@@ -14,8 +17,20 @@ class BookService {
         return `https://covers.openlibrary.org/b/${type}/${cleanIdentifier}-${size}.jpg`;
     }
 
+    static getCacheKey(query, page, limit){
+        return `${query}/${page}/${limit}`;
+    }
+
     static async searchBooks(query, page = 1, limit = 18) {
         try {
+            const cacheKey = this.getCacheKey(query, page, limit);
+
+            const cachedResult = this.cache.get(cacheKey);
+
+            if (cachedResult && Date.now() - cachedResult.timestamp < this.CACHE_DURATION) {
+                return cachedResult.data;
+            }
+
             const offset = (page - 1) * limit;
             const response = await axios.get(
                 `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
@@ -33,12 +48,19 @@ class BookService {
                 };
             });
 
-            return {
+            const result = {
                 books,
                 total: numFound,
                 page,
                 totalPages: Math.ceil(numFound / limit)
             };
+
+            // save the search result in cache
+            this.cache.set(cacheKey, {
+                data: result,
+                timestamp: Date.now(),
+            });
+            return result;
         } catch(err) {
             console.error('Error in searchBooks:', err);
             throw new Error("Error fetching books from OpenLibrary");
