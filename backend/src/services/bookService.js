@@ -125,26 +125,6 @@ class BookService {
             throw new Error("Error fetching books by author from OpenLibrary");
         }
     }
-
-    static clearCache(){
-        this.cache.clear();
-    }
-
-    static clearSearchCache(query, page = 1, limit = 18) {
-        const cacheKey = this.getCacheKey(query, page, limit);
-        const deleted = this.cache.delete(cacheKey);
-    }
-
-    static cleanExpiredCache(){
-        const now = Date.now()
-        let cleared = 0;
-        for (const [key, value] of this.cache.entries()) {
-            if(now - value.timestamp < this.CACHE_DURATION) {
-                this.cache.delete(key);
-                cleared++;
-            }
-        }
-    }
 }
 
 module.exports = BookService;

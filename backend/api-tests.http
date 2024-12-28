@@ -37,9 +37,9 @@ Content-Type: application/json
 > {%
     client.test("Book details include cover URL", function() {
         client.assert(response.status === 200, "Response status should be 200");
-        client.assert(response.body.coverUrl, "Response should include coverUrl");
+        client.assert(response.body.coverURL, "Response should include coverUrl");
         client.assert(
-            response.body.coverUrl.includes("covers.openlibrary.org"),
+            response.body.coverURL.includes("covers.openlibrary.org"),
             "Cover URL should be from Open Library"
         );
     });
