@@ -1,48 +1,37 @@
-import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import api from '../services/api';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import ReviewCard from "../components/books/ReviewCard.jsx";
+import { fetchUserData, updateReview, deleteReview } from '../features/userData/userDataSlice';
 
 const Profile = () => {
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-    const [userReviews, setUserReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { reviews, bookDetails, loading, error } = useSelector((state) => state.userData);
 
+    // Only fetch if we don't have the data yet
     useEffect(() => {
-        fetchUserReviews();
-    }, []);
-
-    const fetchUserReviews = async () => {
-        try {
-            const response = await api.get('/reviews/user');
-            setUserReviews(response.data);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+        if (reviews.length === 0) {
+            dispatch(fetchUserData());
         }
-    };
+    }, [dispatch, reviews.length]);
 
     const handleDeleteReview = async (reviewId) => {
         try {
-            await api.delete(`/reviews/${reviewId}`);
-            await fetchUserReviews(); // Fetch updated reviews after deletion
+            await dispatch(deleteReview(reviewId));
         } catch (err) {
-            setError(err.message);
+            console.error('Error deleting review:', err);
         }
     };
 
     const handleUpdateReview = async (reviewId, updatedData) => {
         try {
-            await api.put(`/reviews/${reviewId}`, updatedData);
-            await fetchUserReviews(); // Fetch updated reviews after update
+            await dispatch(updateReview({ reviewId, updatedData }));
         } catch (err) {
-            setError(err.message);
+            console.error('Error updating review:', err);
         }
     };
 
-    if (loading) return <div className="text-center">Loading...</div>;
+    if (loading === 'pending') return <div className="text-center">Loading...</div>;
     if (error) return <div className="text-red-500 text-center">{error}</div>;
 
     return (
@@ -58,9 +47,9 @@ const Profile = () => {
 
             <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-bold mb-4">Your Reviews</h2>
-                {userReviews.length > 0 ? (
+                {reviews.length > 0 ? (
                     <div className="space-y-4">
-                        {userReviews.map((review) => (
+                        {reviews.map((review) => (
                             <ReviewCard
                                 key={review._id}
                                 review={review}
@@ -69,6 +58,7 @@ const Profile = () => {
                                 currentUserId={user._id}
                                 showBookTitle={true}
                                 isProfileView={true}
+                                bookDetails={bookDetails[review.bookId]}
                             />
                         ))}
                     </div>

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { getBookByISBN } from '../../services/bookService';
+import { useState } from 'react';
 
 const ReviewCard = ({
                         review,
@@ -7,55 +6,25 @@ const ReviewCard = ({
                         onUpdate,
                         currentUserId,
                         showBookTitle = false,
-                        isProfileView = false
+                        isProfileView = false,
+                        bookDetails = null
                     }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedReview, setEditedReview] = useState({
         rating: review.rating,
         comment: review.comment
     });
-    const [loading, setLoading] = useState(false);
-    const [bookDetails, setBookDetails] = useState(null);
 
-    useEffect(() => {
-        if (showBookTitle && review.bookId) {
-            const fetchBookDetails = async () => {
-                try {
-                    const data = await getBookByISBN(review.bookId);
-                    setBookDetails(data);
-                } catch (error) {
-                    console.error('Error fetching book details:', error);
-                }
-            };
-            fetchBookDetails();
-        }
-    }, [review.bookId, showBookTitle]);
-
-    const handleUpdate = async () => {
-        setLoading(true);
-        try {
-            await onUpdate(review._id, editedReview);
-            setIsEditing(false);
-        } catch (error) {
-            console.error('Error updating review:', error);
-        } finally {
-            setLoading(false);
-        }
+    const handleUpdate = () => {
+        onUpdate(review._id, editedReview);
+        setIsEditing(false);
     };
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         if (window.confirm('Are you sure you want to delete this review?')) {
-            setLoading(true);
-            try {
-                await onDelete(review._id);
-            } catch (error) {
-                console.error('Error deleting review:', error);
-            } finally {
-                setLoading(false);
-            }
+            onDelete(review._id);
         }
     };
-
 
     const isUserReview = isProfileView || currentUserId === (review.userId._id || review.userId);
 
@@ -106,10 +75,9 @@ const ReviewCard = ({
                 <div className="flex gap-2">
                     <button
                         onClick={handleUpdate}
-                        disabled={loading}
                         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
                     >
-                        {loading ? 'Saving...' : 'Save Changes'}
+                        Save Changes
                     </button>
                     <button
                         onClick={() => setIsEditing(false)}
@@ -166,10 +134,9 @@ const ReviewCard = ({
                         </button>
                         <button
                             onClick={handleDelete}
-                            disabled={loading}
                             className="text-red-500 hover:text-red-600 text-sm font-medium"
                         >
-                            {loading ? 'Deleting...' : 'Delete'}
+                            Delete
                         </button>
                     </div>
                 )}

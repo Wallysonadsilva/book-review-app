@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../features/auth/authSlice';
 import api from '../services/api';
+import {fetchUserData} from "../features/userData/userDataSlice.js";
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -22,10 +23,14 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
             const response = await api.post('/users/login', formData);
             localStorage.setItem('token', response.data.token);
             dispatch(loginSuccess(response.data));
+
+            await dispatch(fetchUserData());
+
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'An error occurred');
