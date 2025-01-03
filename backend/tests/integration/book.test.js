@@ -3,18 +3,22 @@ const app = require('../../src/server');
 const mongoose = require('mongoose');
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
+let server;
+
 describe('Book API', () => {
     beforeAll(async () => {
         await mongoose.connect(process.env.MONGODB_URI_TEST);
+        server = app.listen();
     });
 
     afterAll(async () => {
         await mongoose.connection.close();
+        await new Promise((resolve) => server.close(resolve));
     });
 
     describe('GET /api/books/search', () => {
         it('should search for books with pagination', async () => {
-            const res = await request(app)
+            const res = await request(server)
                 .get('/api/books/search')
                 .query({
                     q: 'harry potter',
@@ -33,10 +37,8 @@ describe('Book API', () => {
             });
         });
 
-
-
         it('should return error for empty search query', async () => {
-            const res = await request(app)
+            const res = await request(server)
                 .get('/api/books/search')
                 .query({ q: '' });
 
@@ -46,7 +48,7 @@ describe('Book API', () => {
 
     describe('GET /api/books/isbn/:isbn', () => {
         it('should get book by valid ISBN', async () => {
-            const res = await request(app)
+            const res = await request(server)
                 .get('/api/books/isbn/0747532699');
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('title');
@@ -55,7 +57,7 @@ describe('Book API', () => {
         });
 
         it('should return error for invalid ISBN', async () => {
-            const res = await request(app)
+            const res = await request(server)
                 .get('/api/books/isbn/invalid-isbn');
 
             expect(res.status).toBe(400);

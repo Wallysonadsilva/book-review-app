@@ -28,10 +28,9 @@ const Login = () => {
             const response = await api.post('/users/login', formData);
             localStorage.setItem('token', response.data.token);
             dispatch(loginSuccess(response.data));
+            navigate('/');
 
             await dispatch(fetchUserData());
-
-            navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'An error occurred');
         }

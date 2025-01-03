@@ -50,7 +50,6 @@ const userController = {
                     token: generateToken(user._id),
                     createdAt: user.createdAt
                 });
-                console.log(user.username);
             } else {
                 res.status(401).json({ message: 'Invalid email or password' });
             }
