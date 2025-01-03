@@ -17,18 +17,36 @@ class BookService {
         return `https://covers.openlibrary.org/b/${type}/${cleanIdentifier}-${size}.jpg`;
     }
 
-    static getCacheKey(query, page, limit){
-        return `${query}/${page}/${limit}`;
+    static getCacheKey(type, ...params) {
+        return `${type}:${params.join('/')}`;
+    }
+
+    static getFromCache(cacheKey) {
+        const cachedResult = this.cache.get(cacheKey);
+        if(cachedResult) {
+            if ( Date.now() - cachedResult.timestamp < this.CACHE_DURATION) {
+                return cachedResult.data;
+            }
+
+            this.cache.delete(cacheKey);
+        }
+        return null;
+    }
+
+    static setCache(cacheKey, data) {
+        this.cache.set(cacheKey, {
+            data,
+            timestamp: Date.now(),
+        });
     }
 
     static async searchBooks(query, page = 1, limit = 18) {
         try {
-            const cacheKey = this.getCacheKey(query, page, limit);
+            const cacheKey = this.getCacheKey('search', query, page, limit);
+            const cachedResult = this.getFromCache(cacheKey);
 
-            const cachedResult = this.cache.get(cacheKey);
-
-            if (cachedResult && Date.now() - cachedResult.timestamp < this.CACHE_DURATION) {
-                return cachedResult.data;
+            if (cachedResult) {
+                return cachedResult;
             }
 
             const offset = (page - 1) * limit;
@@ -39,14 +57,12 @@ class BookService {
 
             const { numFound = 0 } = response.data;
 
-            const books = response.data.docs.map((book) => {
-                return {
-                    ...book,
-                    coverURL: book.isbn && book.isbn.length > 0
-                        ? this.getCoverURL(book.isbn[0])
-                        : null
-                };
-            });
+            const books = response.data.docs.map((book) => ({
+                ...book,
+                coverURL: book.isbn && book.isbn.length > 0
+                    ? this.getCoverURL(book.isbn[0])
+                    : null
+            }));
 
             const result = {
                 books,
@@ -55,11 +71,7 @@ class BookService {
                 totalPages: Math.ceil(numFound / limit)
             };
 
-            // save the search result in cache
-            this.cache.set(cacheKey, {
-                data: result,
-                timestamp: Date.now(),
-            });
+            this.setCache(cacheKey, result);
             return result;
         } catch(err) {
             console.error('Error in searchBooks:', err);
@@ -69,6 +81,13 @@ class BookService {
 
     static async getBooksByISBN(isbn) {
         try {
+            const cacheKey = this.getCacheKey('isbn', isbn);
+            const cachedResult = this.getFromCache(cacheKey);
+
+            if (cachedResult) {
+                return cachedResult;
+            }
+
             const response = await axios.get(
                 `https://openlibrary.org/isbn/${isbn}.json`,
                 this.header
@@ -86,7 +105,7 @@ class BookService {
                 publish_date = 'unknown',
             } = response.data;
 
-            return {
+            const result = {
                 title: response.data.title,
                 author_name: authors?.map(author => author.name) || [],
                 first_publish_year: publish_date,
@@ -94,6 +113,9 @@ class BookService {
                 coverURL: this.getCoverURL(isbn),
                 ...response.data
             };
+
+            this.setCache(cacheKey, result);
+            return result;
         } catch (err) {
             console.error('Error in getBooksByISBN:', err);
             throw new Error("Error fetching book details from OpenLibrary");
@@ -102,6 +124,13 @@ class BookService {
 
     static async getBookByAuthor(author, page = 1, limit = 18) {
         try {
+            const cacheKey = this.getCacheKey('author', author, page, limit);
+            const cachedResult = this.getFromCache(cacheKey);
+
+            if (cachedResult) {
+                return cachedResult;
+            }
+
             const offset = (page - 1) * limit;
             const response = await axios.get(
                 `https://openlibrary.org/search.json?author=${encodeURIComponent(author)}&limit=${limit}&offset=${offset}`,
@@ -114,17 +143,21 @@ class BookService {
                 coverURL: book.isbn && book.isbn.length > 0 ? this.getCoverURL(book.isbn[0]) : null
             }));
 
-            return {
+            const result = {
                 books,
                 total: numFound,
                 page,
                 totalPages: Math.ceil(numFound / limit)
             };
+
+            this.setCache(cacheKey, result);
+            return result;
         } catch(err) {
             console.error('Error in getBookByAuthor:', err);
             throw new Error("Error fetching books by author from OpenLibrary");
         }
     }
+
 }
 
 module.exports = BookService;
