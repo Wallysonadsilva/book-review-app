@@ -73,9 +73,14 @@ const userDataSlice = createSlice({
         reviews: [],
         bookDetails: {},
         loading: 'idle',
-        error: null
+        error: null,
+        needsRefresh: false,
+        lastFetched: null
     },
     reducers: {
+        setNeedsRefresh: (state, action) => {
+            state.needsRefresh = action.payload;
+        },
         clearUserData: (state) => {
             state.reviews = [];
             state.bookDetails = {};
@@ -92,6 +97,7 @@ const userDataSlice = createSlice({
                 state.loading = 'succeeded';
                 state.reviews = action.payload.reviews;
                 state.bookDetails = action.payload.bookDetails;
+                state.lastFetched = Date.now();
                 state.error = null;
             })
             .addCase(fetchUserData.rejected, (state, action) => {
@@ -101,5 +107,5 @@ const userDataSlice = createSlice({
     }
 });
 
-export const { clearUserData } = userDataSlice.actions;
+export const { clearUserData, setNeedsRefresh } = userDataSlice.actions;
 export default userDataSlice.reducer;

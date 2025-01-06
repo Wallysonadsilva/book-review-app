@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import api from '../../services/api';
+import {setNeedsRefresh} from "../../features/userData/userDataSlice.js";
+import {useDispatch} from "react-redux";
 
 const ReviewForm = ({ bookId, onReviewAdded }) => {
     const [formData, setFormData] = useState({
@@ -8,6 +10,7 @@ const ReviewForm = ({ bookId, onReviewAdded }) => {
     });
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,6 +24,7 @@ const ReviewForm = ({ bookId, onReviewAdded }) => {
             });
             setFormData({ rating: 5, comment: '' });
             if (onReviewAdded) onReviewAdded();
+            dispatch(setNeedsRefresh(true));
         } catch (err) {
             setError(err.response?.data?.message || 'Error submitting review');
         } finally {

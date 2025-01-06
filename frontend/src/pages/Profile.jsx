@@ -1,19 +1,20 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ReviewCard from "../components/books/ReviewCard.jsx";
-import { fetchUserData, updateReview, deleteReview } from '../features/userData/userDataSlice';
+import {fetchUserData, updateReview, deleteReview, setNeedsRefresh} from '../features/userData/userDataSlice';
 
 const Profile = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-    const { reviews, bookDetails, loading, error } = useSelector((state) => state.userData);
+    const { reviews, bookDetails, loading, error, needsRefresh } = useSelector((state) => state.userData);
 
     // Only fetch if we don't have the data yet
     useEffect(() => {
-        if (reviews.length === 0) {
+        if (needsRefresh || reviews.length === 0) {
             dispatch(fetchUserData());
+            dispatch(setNeedsRefresh(false));
         }
-    }, [dispatch, reviews.length]);
+    }, [dispatch, needsRefresh, reviews.length]);
 
     const handleDeleteReview = async (reviewId) => {
         try {
